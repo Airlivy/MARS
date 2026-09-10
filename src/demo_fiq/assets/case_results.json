@@ -1,0 +1,120 @@
+[
+ {
+  "ref": "B005NXMDTU",
+  "cat": "dress",
+  "inst": "把紫色改成蓝色",
+  "query_en": "a blue",
+  "alpha": 0.6,
+  "ref_pix_dom": "purple",
+  "ref_clip": "purple dress",
+  "results": [
+   {
+    "name": "B004OBZ4HU",
+    "score": 0.8134,
+    "pix_dom": "blue",
+    "clip": "blue dress"
+   },
+   {
+    "name": "B006YNDYF0",
+    "score": 0.7957,
+    "pix_dom": "blue",
+    "clip": "blue dress"
+   },
+   {
+    "name": "B009T2QGDK",
+    "score": 0.7943,
+    "pix_dom": "blue",
+    "clip": "blue dress"
+   },
+   {
+    "name": "B0082C616K",
+    "score": 0.79,
+    "pix_dom": "blue",
+    "clip": "blue dress"
+   },
+   {
+    "name": "B008RDI8MO",
+    "score": 0.7899,
+    "pix_dom": "blue",
+    "clip": "purple dress"
+   },
+   {
+    "name": "B00974E8X0",
+    "score": 0.7777,
+    "pix_dom": "blue",
+    "clip": "blue dress"
+   },
+   {
+    "name": "B006W37MIW",
+    "score": 0.7776,
+    "pix_dom": "blue",
+    "clip": "blue dress"
+   },
+   {
+    "name": "B004LZ5V40",
+    "score": 0.7691,
+    "pix_dom": "blue",
+    "clip": "blue dress"
+   }
+  ]
+ },
+ {
+  "ref": "B00543Z8TG",
+  "cat": "shirt",
+  "inst": "把绿色改成红色",
+  "query_en": "a red",
+  "alpha": 0.6,
+  "ref_pix_dom": "green",
+  "ref_clip": "green shirt",
+  "results": [
+   {
+    "name": "B00974VG2G",
+    "score": 0.8072,
+    "pix_dom": "red",
+    "clip": "red shirt"
+   },
+   {
+    "name": "B005PJSVJS",
+    "score": 0.8052,
+    "pix_dom": "red",
+    "clip": "red shirt"
+   },
+   {
+    "name": "B005173SFG",
+    "score": 0.8046,
+    "pix_dom": "red",
+    "clip": "red shirt"
+   },
+   {
+    "name": "B00B7M1QLW",
+    "score": 0.8021,
+    "pix_dom": "red",
+    "clip": "red shirt"
+   },
+   {
+    "name": "B000KLV1CA",
+    "score": 0.8015,
+    "pix_dom": "red",
+    "clip": "red shirt"
+   },
+   {
+    "name": "B007TXC8E2",
+    "score": 0.7954,
+    "pix_dom": "red",
+    "clip": "red shirt"
+   },
+   {
+    "name": "B008ES82T6",
+    "score": 0.7941,
+    "pix_dom": "red",
+    "clip": "red shirt"
+   },
+   {
+    "name": "B00A7ING38",
+    "score": 0.7909,
+    "pix_dom": "red",
+    "clip": "red shirt"
+   }
+  ]
+ }
+]

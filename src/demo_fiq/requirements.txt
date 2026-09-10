@@ -1,0 +1,17 @@
+# FashionIQ 交互式检索 Demo 的依赖
+#
+# 版本号取自 src/Core/requirements.txt —— 即作者本机已验证可用的组合，未做额外推断。
+# demo 本身只用到下面这些包：server.py / find_cases.py 的其余 import 均为标准库。
+
+fastapi==0.115.0
+uvicorn==0.31.0
+pydantic==2.9.2
+numpy==1.26.4
+pillow==10.4.0
+transformers==4.44.1
+
+# PyTorch 未在上文固定：其 wheel 与 CUDA 版本绑定，应按自己的环境单独安装。
+# 作者环境用的是 CUDA 11.8 构建（对应 src/Core/requirements.txt 里的 torch==2.4.0+cu118）：
+#     pip install torch==2.4.0 torchvision==0.19.0 --index-url https://download.pytorch.org/whl/cu118
+# 无 GPU 时也可装 CPU 版，demo 会自动回退到 CPU。
+torch==2.4.0

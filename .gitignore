@@ -1,0 +1,39 @@
+# ===== 数据集（体积大，自行按 src/README.md 第三节准备）=====
+# 仅锚定仓库根目录的 data/，避免误伤依赖包内部的 data/ 目录
+/data/
+
+# ===== 本地保留、不随仓库分发的上游依赖 =====
+src/Core/pyairports/
+
+# ===== 第三方参考仓库归档（上游副本，不随本仓库分发）=====
+archive/
+# 上游论文配图（与 archive 同源，非本项目产出）
+src/Core/figures/
+
+# ===== 文档与报告产物（不随本仓库分发）=====
+*.docx
+~$*
+_report_draft.md
+_build_report_docx.py
+
+# ===== 运行输出（运行期自动生成，见 src/README.md 第六节）=====
+src/Core/runs/
+src/Core/image_db/
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# ===== macOS =====
+.DS_Store
+__MACOSX/
+
+# ===== 编辑器 / 本地配置 =====
+.claude/settings.local.json
+.idea/
+.vscode/

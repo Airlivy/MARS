@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>组合图像检索 Demo</title>
+<style>
+  :root{
+    --bg:#f4f6fb; --card:#ffffff; --ink:#1c2333; --muted:#6b7488;
+    --accent:#4f6ef7; --accent-2:#7c4dff; --line:#e4e8f2; --ok:#21a05a;
+    --shadow:0 1px 2px rgba(20,30,60,.06),0 6px 20px rgba(20,30,60,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+       background:var(--bg);color:var(--ink)}
+  .wrap{max-width:1240px;margin:0 auto;padding:20px 22px 60px}
+  header{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:6px 0 2px}
+  h1{font-size:21px;margin:0;letter-spacing:.2px}
+  header .sub{color:var(--muted);font-size:13px}
+  .demo-note{background:#eef3ff;border:1px solid #dbe4ff;border-radius:10px;
+     padding:10px 14px;font-size:12.5px;color:#3a4666;line-height:1.7;margin:10px 0 0}
+
+  .grid-row{display:grid;grid-template-columns:250px 1fr;gap:18px;margin-top:16px}
+  @media(max-width:960px){.grid-row{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;
+     padding:14px;box-shadow:var(--shadow)}
+  .panel h2{font-size:14px;margin:2px 0 10px;color:var(--muted);font-weight:600}
+  .panel h2 b{color:var(--ink)}
+
+  /* 参考图库 */
+  .thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:6px;max-height:66vh;overflow:auto}
+  .thumb{position:relative;cursor:pointer;border:2px solid transparent;border-radius:8px;overflow:hidden;
+         background:#fafbfd;transition:border-color .12s, transform .12s}
+  .thumb img{width:100%;height:62px;object-fit:cover;display:block}
+  .thumb:hover{transform:translateY(-1px)}
+  .thumb.sel{border-color:var(--accent);box-shadow:0 0 0 2px rgba(79,110,247,.25)}
+  .thumb .nm{position:absolute;left:0;bottom:0;right:0;font-size:9.5px;background:rgba(20,30,60,.55);
+             color:#fff;padding:1px 3px;white-space:nowrap;overflow:hidden}
+
+  /* 右侧操作与结果 */
+  .sel-line{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);margin-bottom:10px}
+  .sel-line .box{border:1px solid var(--line);border-radius:8px;padding:2px;width:44px;height:44px}
+  .sel-line .box img{width:100%;height:100%;object-fit:cover;border-radius:6px;display:block}
+  .sel-line .arrow{font-size:18px}
+  .sel-line .no{color:#b6bdcc}
+
+  .inst-row{display:flex;gap:8px}
+  .inst-row input{flex:1;padding:10px 12px;font-size:15px;border:1px solid var(--line);
+       border-radius:10px;outline:none;background:#fbfcff}
+  .inst-row input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,110,247,.14)}
+  .btn{border:0;border-radius:10px;padding:10px 22px;font-size:15px;cursor:pointer;
+       background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;
+       box-shadow:0 4px 12px rgba(90,80,240,.25)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+  .btn.ghost{background:#fff;color:var(--accent);border:1px solid var(--accent);box-shadow:none}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
+  .chips .lbl{font-size:12px;color:var(--muted);margin-right:2px}
+  .chip{font-size:12.5px;border:1px solid var(--line);background:#fff;border-radius:999px;
+        padding:5px 12px;cursor:pointer;color:#3a4666;transition:all .12s}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .chip.case{background:#f3f0ff;border-color:#d9d0ff;color:#5b3fd6}
+  .chip.case b{font-weight:700}
+
+  .adv{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+  .adv input[type=range]{width:150px}
+  .query-card{margin-top:14px;background:#fafbfe;border:1px solid var(--line);border-radius:12px;
+     padding:10px 14px;font-size:13px;color:#3a4666;line-height:1.8;display:none}
+  .query-card .en{font-family:Consolas,Menlo,monospace;font-size:14px;color:#2a2f45}
+  .query-card .tag{display:inline-block;font-size:11px;border-radius:6px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+  .tag.yes{background:#e3f6ea;color:var(--ok)}
+  .tag.no{background:#fdeaea;color:#d94b4b}
+
+  .results{margin-top:14px;display:none}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .card{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;
+        box-shadow:var(--shadow);cursor:pointer;transition:transform .12s}
+  .card:hover{transform:translateY(-2px)}
+  .card img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}
+  .rank{position:absolute;top:6px;left:6px;background:rgba(20,30,60,.62);color:#fff;font-size:12px;
+        font-weight:600;border-radius:6px;padding:1px 7px}
+  .score{position:absolute;top:6px;right:6px;background:rgba(20,30,60,.62);color:#cfe0ff;font-size:11px;
+         border-radius:6px;padding:1px 6px}
+  .cap{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:6px 8px}
+  .hint{font-size:12px;color:var(--muted);margin-top:8px}
+  .err{color:#d94b4b;font-size:13px;margin-top:8px}
+  .foot{color:#a8b0c0;font-size:12px;margin-top:26px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🖼️ 组合图像检索 · 交互 Demo</h1>
+    <span class="sub">点选参考图 + 输入修改指令 → CLIP 融合检索（排除参考图本身）</span>
+  </header>
+  <div class="demo-note">
+    用法：左侧图库点一张图作<b>参考图</b>，输入中文修改指令（如「把蓝色改成红色」），点「检索」。
+    引擎为轻量 CLIP（无 LLM、无重排序），为课程框架的 <b>Stage-1 检索</b>做可交互演示。
+    图库是 <b>真实 FashionIQ 服装图</b>（dress/shirt/toptee，上万张），网格只展示部分、可「加载更多」，
+    检索在全库进行；点击<b>结果图</b>可继续把它当新参考图。下方「推荐演示案例」已离线筛出，一键复现。
+  </div>
+
+  <div class="grid-row">
+    <div class="panel">
+      <h2><b>①</b> 选择参考图 <span id="galcount" class="no"></span></h2>
+      <div class="thumbs" id="gallery"></div>
+      <div id="morewrap" hidden style="margin-top:8px">
+        <button class="chip" id="more">＋ 加载更多参考图</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2><b>②</b> 输入修改指令</h2>
+      <div class="sel-line">
+        <div class="box" id="refbox"><img id="refimg" hidden alt=""></div>
+        <span class="arrow">→</span>
+        <span id="refname" class="no">（尚未选择参考图）</span>
+      </div>
+      <div class="inst-row">
+        <input id="inst" placeholder="例如：把蓝色改成红色" list="inst-dict">
+        <datalist id="inst-dict"></datalist>
+        <button class="btn" id="go" disabled>🔍 检索</button>
+      </div>
+      <div class="chips">
+        <span class="lbl">推荐案例：</span>
+        <span id="cases-box"></span>
+      </div>
+      <div class="chips" id="ex-chips"></div>
+      <div class="adv">
+        <span>α（参考图↔指令权重）<span id="alpha-val">0.70</span></span>
+        <input type="range" id="alpha" min="0" max="2" step="0.05" value="0.7">
+        <span class="hint">α=0 时仅按文字；越大越偏向参考图</span>
+      </div>
+
+      <div class="query-card" id="qcard"></div>
+      <div class="results" id="results"><div class="grid" id="rgrid"></div></div>
+      <div class="err" id="err"></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    后端：FastAPI + laion ViT-B/32；参考图向量取自 <code>data/FashionIQ_real/clip_db</code> 的预计算 image_db（512 维，
+    无实时图像编码），每个请求仅实时编码 1 条英文查询。
+    Demo 目录 <code>src/demo_fiq/</code>，详见同目录 <code>演示案例.md</code>。
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let images=[], sel=null, curBatch=-1;
+const EXAMPLES=[
+  "把蓝色改成红色","把红色改成绿色","把黄色改成紫色","把黑色改成白色",
+  "把蓝色连衣裙改成红色","让这条黑色外套变成白色","找一条黄色连衣裙"
+];
+
+async function jget(u){const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json();}
+let metaTot=0;
+function addThumbs(list){
+  const g=$('gallery');
+  list.forEach(im=>{
+    const el=document.createElement('div');
+    el.className='thumb'; el.dataset.n=im.name;
+    el.innerHTML=`<img src="${im.url}" loading="lazy"><span class="nm">${im.name}</span>`;
+    el.onclick=()=>selectBy(im.name,im.url);
+    g.appendChild(el);
+  });
+}
+async function loadMore(){
+  try{
+    const d=await jget('/api/images?batch='+(curBatch+1));
+    curBatch=d.batch; metaTot=d.total;
+    images=images.concat(d.images); addThumbs(d.images); setCount();
+    $('morewrap').hidden=!d.has_more;
+  }catch(e){$('err').textContent='加载更多失败：'+e;}
+}
+async function init(){
+  try{
+    const d=await jget('/api/images?batch=0');
+    curBatch=d.batch; metaTot=d.total; images=d.images;
+    addThumbs(d.images); setCount();
+    $('morewrap').hidden=!d.has_more;
+  }catch(e){$('err').textContent='加载图库失败：'+e;}
+  renderExamples();
+  $('go').onclick=run;
+  $('more').onclick=loadMore;
+  $('inst').addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+  $('alpha').oninput=()=>{$('alpha-val').textContent=(+$('alpha').value).toFixed(2);};
+  loadCases();
+}
+function setCount(){$('galcount').textContent=metaTot>images.length?`共 ${metaTot} 张 · 已显示 ${images.length}`:`共 ${metaTot} 张`;}
+function renderExamples(){
+  $('ex-chips').innerHTML='<span class="lbl">示例指令：</span>'+EXAMPLES.map(x=>
+    `<button class="chip" data-x="${x}">${x}</button>`).join('');
+  document.querySelectorAll('#ex-chips .chip').forEach(b=>{
+    b.onclick=()=>{$('inst').value=b.dataset.x;};
+  });
+}
+async function loadCases(){
+  try{
+    const c=await jget('/api/cases');
+    const cs=c.cases||[];
+    $('cases-box').innerHTML=cs.map((x,i)=>
+      `<button class="chip case" data-c="${i}"><b>案例 ${i+1}</b>：${x.inst}</button>`).join('');
+    document.querySelectorAll('#cases-box .chip').forEach(b=>{
+      b.onclick=()=>{const x=cs[+b.dataset.c];selectRefByName(x.name,x.inst,x.alpha);};
+    });
+  }catch(e){/* cases.json 不存在时静默 */$('cases-box').innerHTML='<span class="no">（无）</span>';}
+}
+function imgUrl(name){return '/img/'+encodeURIComponent(name);}
+function selectBy(name,url,inst,alpha){
+  sel={name,url};
+  const im=$('refimg');im.src=url;im.hidden=false;
+  $('refname').textContent=name;$('refname').className='';
+  document.querySelectorAll('.thumb').forEach(e=>e.classList.toggle('sel',e.dataset.n===name));
+  $('go').disabled=false;clearOut();
+  if(inst)$('inst').value=inst;
+  if(alpha!==undefined&&alpha!==null){$('alpha').value=alpha;$('alpha-val').textContent=(+alpha).toFixed(2);}
+}
+function selectRefByName(name,inst,alpha){selectBy(name,imgUrl(name),inst,alpha);run();}
+function clearOut(){$('qcard').style.display='none';$('results').style.display='none';$('err').textContent='';}
+async function run(){
+  if(!sel){$('err').textContent='请先在左侧选择一张参考图。';return;}
+  clearOut();
+  const body={name:sel.name,inst_cn:$('inst').value.trim(),alpha:+$('alpha').value,top_k:8};
+  if(!body.inst_cn){$('err').textContent='请输入修改指令。';return;}
+  $('go').disabled=true;
+  try{
+    const r=await (await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)})).json();
+    showQuery(r);showResults(r);
+  }catch(e){$('err').textContent='检索失败：'+e;}
+  $('go').disabled=false;
+}
+function showQuery(r){
+  const ok=r.mapped?'已识别改色语义':'未识别(原文查询)';
+  const tag=r.mapped?'tag yes':'tag no';
+  $('qcard').innerHTML=`中文指令：<b>${esc(r.inst_cn)}</b> &nbsp; α=${r.alpha.toFixed(2)} &nbsp; 耗时 ${r.ms}ms<br>
+    英文 CLIP 查询：<span class="en">"${esc(r.query_en)}"</span><span class="${tag}">${ok}</span>`;
+  $('qcard').style.display='block';
+}
+function showResults(r){
+  $('rgrid').innerHTML=r.names.map((n,i)=>`
+    <div class="card" data-n="${n}" title="点击设为新参考图">
+      <img src="${r.urls[i]}" loading="lazy">
+      <span class="rank">#${i+1}</span><span class="score">${r.scores[i]}</span>
+      <div class="cap"><span>${n}</span></div>
+    </div>`).join('');
+  $('results').style.display='block';
+  document.querySelectorAll('#rgrid .card').forEach((el,i)=>{
+    el.onclick=()=>selectBy(el.dataset.n,r.urls[i]);
+  });
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+init();
+</script>
+</body>
+</html>
